@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://senlinren6888-eng.github.io/jd-hx/sitemap.xml

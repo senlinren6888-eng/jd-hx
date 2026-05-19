@@ -5,8 +5,8 @@ socket.setdefaulttimeout(15)
 
 AK = "4435f5032650fbfdcae8f3e6e9cc2e06"
 AS = "c3e7d8cf24dd4bf48d78a86a094d69f0"
-OUTPUT = os.path.expanduser("~/.hermes/sites/jd_deals/index.html")
-os.makedirs(os.path.dirname(OUTPUT), exist_ok=True)
+PROJECT_DIR = os.path.expanduser("~/jd-hx")
+os.makedirs(PROJECT_DIR, exist_ok=True)
 
 def jd_call(method, biz):
     biz_json = json.dumps(biz, ensure_ascii=False, separators=(",", ":"))
@@ -165,8 +165,9 @@ body{{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backg
 </body>
 </html>'''
 
-with open(OUTPUT, "w", encoding="utf-8") as f:
+with open(os.path.join(PROJECT_DIR, "index.html"), "w", encoding="utf-8") as f:
     f.write(html)
 
-print(f"\n🎉 页面已生成: {OUTPUT} ({len(html):,} 字符)", flush=True)
+print(f"\n🎉 京东惠选已刷新: index.html ({len(html):,} 字符)", flush=True)
 print(f"📊 商品数: {len(products)} | 佣金总额: ¥{total_commission:.2f}", flush=True)
+print(f"🌐 https://senlinren6888-eng.github.io/jd-hx/", flush=True)
