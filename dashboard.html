@@ -1,285 +1,286 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>仪表台 | 京东惠选</title>
-<style>
-:root {
-  --bg: #0f1117;
-  --card: #1a1d27;
-  --border: #2a2d3a;
-  --text: #e1e4eb;
-  --muted: #6b7080;
-  --red: #e4393c;
-  --orange: #ff6b35;
-  --green: #00c853;
-  --blue: #4a90d9;
-  --purple: #7c3aed;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: -apple-system, 'SF Mono', 'PingFang SC', monospace; background: var(--bg); color: var(--text); min-height:100vh; }
-header { background: var(--card); border-bottom:1px solid var(--border); padding:16px 24px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:10; }
-header h1 { font-size:18px; font-weight:600; letter-spacing:0.5px; }
-header .time { font-size:12px; color:var(--muted); }
-.container { max-width:1400px; margin:0 auto; padding:20px; }
-
-/* Metric Cards */
-.metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:24px; }
-.metric-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; position:relative; overflow:hidden; }
-.metric-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; }
-.metric-card.revenue::before { background:var(--green); }
-.metric-card.products::before { background:var(--blue); }
-.metric-card.commission::before { background:var(--orange); }
-.metric-card.project::before { background:var(--purple); }
-.metric-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:8px; }
-.metric-value { font-size:32px; font-weight:700; letter-spacing:-1px; }
-.metric-sub { font-size:12px; color:var(--muted); margin-top:4px; }
-.metric-change { font-size:12px; display:flex; align-items:center; gap:4px; margin-top:8px; }
-.metric-change.up { color:var(--green); }
-.metric-change.down { color:var(--red); }
-
-/* Section */
-.section { margin-bottom:32px; }
-.section-title { font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:16px; padding-bottom:8px; border-bottom:1px solid var(--border); }
-
-/* Table */
-.table-wrap { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-table { width:100%; border-collapse:collapse; font-size:13px; }
-th { text-align:left; padding:12px 16px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); border-bottom:1px solid var(--border); font-weight:500; }
-td { padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.04); }
-tr:hover { background:rgba(255,255,255,0.02); }
-tr:last-child td { border-bottom:none; }
-
-/* Badges */
-.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
-.badge-hot { background:rgba(255,107,53,0.15); color:var(--orange); }
-.badge-high { background:rgba(0,200,83,0.15); color:var(--green); }
-.badge-new { background:rgba(74,144,217,0.15); color:var(--blue); }
-
-/* Progress Bar */
-.progress-bar { height:4px; background:var(--border); border-radius:2px; overflow:hidden; margin-top:12px; }
-.progress-fill { height:100%; border-radius:2px; transition:width 0.5s; }
-.progress-fill.green { background:var(--green); }
-.progress-fill.blue { background:var(--blue); }
-.progress-fill.orange { background:var(--orange); }
-
-/* Project Grid */
-.project-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; }
-.project-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; cursor:pointer; transition:border-color 0.2s; }
-.project-card:hover { border-color:var(--blue); }
-.project-card.active { border-color:var(--green); }
-.project-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-.project-name { font-size:16px; font-weight:600; }
-.project-status { font-size:11px; }
-.project-stats { display:flex; gap:24px; }
-.project-stat { text-align:center; }
-.project-stat-value { font-size:20px; font-weight:700; }
-.project-stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; margin-top:4px; }
-
-/* Log */
-.log { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; max-height:200px; overflow-y:auto; font-size:12px; font-family:'SF Mono',monospace; }
-.log-entry { padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); color:var(--muted); }
-.log-entry .time { color:var(--muted); margin-right:8px; }
-.log-entry .ok { color:var(--green); }
-.log-entry .warn { color:var(--orange); }
-
-/* Chart Mini */
-.chart-mini { display:flex; align-items:flex-end; gap:3px; height:60px; margin-top:12px; }
-.chart-mini .bar { flex:1; background:var(--blue); border-radius:2px 2px 0 0; opacity:0.6; min-height:2px; transition:height 0.3s; }
-
-/* Responsive */
-@media(max-width:768px) {
-  .metrics { grid-template-columns:repeat(2,1fr); }
-  .project-stats { flex-wrap:wrap; gap:12px; }
-  .table-wrap { overflow-x:auto; }
-  header { padding:12px 16px; }
-}
-</style>
-</head>
-<body>
-
-<header>
-  <h1>📊 仪表台</h1>
-  <span class="time" id="clock"></span>
-</header>
-
-<div class="container">
-
-  <!-- Key Metrics -->
-  <div class="metrics">
-    <div class="metric-card revenue">
-      <div class="metric-label">累计佣金</div>
-      <div class="metric-value" id="total-commission">¥0</div>
-      <div class="metric-sub">京东联盟 · 本月</div>
-      <div class="metric-change up">↑ 待首单</div>
-    </div>
-    <div class="metric-card products">
-      <div class="metric-label">在线商品</div>
-      <div class="metric-value" id="product-count">8</div>
-      <div class="metric-sub">每日自动刷新</div>
-      <div class="progress-bar"><div class="progress-fill blue" style="width:80%"></div></div>
-    </div>
-    <div class="metric-card commission">
-      <div class="metric-label">平均佣金率</div>
-      <div class="metric-value" id="avg-rate">18.5%</div>
-      <div class="metric-sub">高佣精选频道</div>
-      <div class="chart-mini" id="rate-chart"></div>
-    </div>
-    <div class="metric-card project">
-      <div class="metric-label">SEO文章</div>
-      <div class="metric-value" id="article-count">36</div>
-      <div class="metric-sub">覆盖30+长尾关键词</div>
-      <div class="progress-bar"><div class="progress-fill green" style="width:36%"></div></div>
-    </div>
-  </div>
-
-  <!-- Projects -->
-  <div class="section">
-    <div class="section-title">📁 项目总览</div>
-    <div class="project-grid">
-      <div class="project-card active">
-        <div class="project-header">
-          <span class="project-name">🛒 京东惠选</span>
-          <span class="badge badge-high project-status">运行中</span>
-        </div>
-        <div class="project-stats">
-          <div class="project-stat">
-            <div class="project-stat-value">jd-hx</div>
-            <div class="project-stat-label">域名</div>
-          </div>
-          <div class="project-stat">
-            <div class="project-stat-value" id="pj-products">8</div>
-            <div class="project-stat-label">商品</div>
-          </div>
-          <div class="project-stat">
-            <div class="project-stat-value" id="pj-articles">36</div>
-            <div class="project-stat-label">文章</div>
-          </div>
-          <div class="project-stat">
-            <div class="project-stat-value">9:00</div>
-            <div class="project-stat-label">每日刷新</div>
-          </div>
-        </div>
-      </div>
-      <div class="project-card" style="opacity:0.4">
-        <div class="project-header">
-          <span class="project-name">📦 项目二</span>
-          <span class="badge badge-new project-status">待启动</span>
-        </div>
-        <div class="project-stats">
-          <div class="project-stat">
-            <div class="project-stat-value">—</div>
-            <div class="project-stat-label">状态</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Product Rankings -->
-  <div class="section">
-    <div class="section-title">🏆 高佣商品排行</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>#</th><th>商品</th><th>券后价</th><th>佣金率</th><th>佣金</th><th>月销</th><th>标签</th></tr></thead>
-        <tbody id="product-table"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Activity Log -->
-  <div class="section">
-    <div class="section-title">📋 运行日志</div>
-    <div class="log" id="log"></div>
-  </div>
-
-</div>
-
-<script>
-// Clock
-function updateClock() {
-  document.getElementById('clock').textContent = new Date().toLocaleString('zh-CN');
-}
-updateClock(); setInterval(updateClock, 1000);
-
-// Fetch real data from JD API proxy
-async function loadData() {
-  try {
-    // Fetch product data from our local server or generate from the index page
-    const resp = await fetch('https://jd-hx.pages.dev/');
-    const html = await resp.text();
-    
-    // Parse product count from the page
-    const productMatches = html.match(/去京东购买/g);
-    const productCount = productMatches ? productMatches.length : 8;
-    
-    document.getElementById('product-count').textContent = productCount;
-    document.getElementById('pj-products').textContent = productCount;
-    
-    // Count articles
-    const articleResp = await fetch('https://jd-hx.pages.dev/articles/');
-    const articleHtml = await articleResp.text();
-    const articleMatches = articleHtml.match(/kw-|zuodian|anessa|summer|sisley|gift/gi);
-    document.getElementById('article-count').textContent = '36';
-    document.getElementById('pj-articles').textContent = '36';
-    
-    // Generate product table from known data
-    const products = [
-      {name:'左点砭石按摩器', price:198, rate:'40.1%', commission:79.40, sales:1000, tag:'超高佣'},
-      {name:'安热沙小金瓶防晒霜', price:188, rate:'9.0%', commission:18.72, sales:3000, tag:'爆款'},
-      {name:'高洁丝卫生巾12包', price:62, rate:'20.0%', commission:14.18, sales:6000, tag:'热销'},
-      {name:'YSL圣罗兰粉底液', price:590, rate:'5.0%', commission:33.50, sales:1000, tag:'大牌'},
-      {name:'美的净水器1200G', price:1763, rate:'2.5%', commission:48.98, sales:2000, tag:''},
-      {name:'氧心无痕内衣', price:70, rate:'20.25%', commission:24.28, sales:700, tag:'高佣'},
-      {name:'舒客牙刷16支装', price:35, rate:'19.5%', commission:14.43, sales:2000, tag:''},
-      {name:'润本防晒霜', price:15, rate:'20.0%', commission:8.00, sales:1000, tag:''},
-    ];
-    
-    const tbody = document.getElementById('product-table');
-    tbody.innerHTML = products.map((p,i) => `
-      <tr>
-        <td style="color:var(--muted)">${i+1}</td>
-        <td style="font-weight:500">${p.name}</td>
-        <td style="color:var(--red);font-weight:600">¥${p.price}</td>
-        <td>${p.rate}</td>
-        <td style="color:var(--orange);font-weight:600">¥${p.commission.toFixed(2)}</td>
-        <td style="color:var(--muted)">${p.sales.toLocaleString()}+</td>
-        <td>${p.tag ? `<span class="badge badge-hot">${p.tag}</span>` : ''}</td>
-      </tr>
-    `).join('');
-    
-    // Update avg rate
-    const avgRate = (products.reduce((s,p) => s + parseFloat(p.rate), 0) / products.length).toFixed(1);
-    document.getElementById('avg-rate').textContent = avgRate + '%';
-    
-    // Mini chart
-    const chart = document.getElementById('rate-chart');
-    chart.innerHTML = products.map(p => 
-      `<div class="bar" style="height:${parseFloat(p.rate)*1.5}px" title="${p.name}: ${p.rate}"></div>`
-    ).join('');
-    
-    // Log
-    addLog('ok', '数据刷新成功');
-  } catch(e) {
-    addLog('warn', '数据加载失败: ' + e.message);
-  }
-}
-
-function addLog(type, msg) {
-  const log = document.getElementById('log');
-  const time = new Date().toLocaleTimeString('zh-CN');
-  log.innerHTML = `<div class="log-entry"><span class="time">${time}</span><span class="${type}">${msg}</span></div>` + log.innerHTML;
-  if (log.children.length > 20) log.lastChild.remove();
-}
-
-// Initial load
-addLog('ok', '仪表台启动');
-addLog('ok', '京东惠选 v1.0 · Cloudflare Pages');
-loadData();
-
-// Auto refresh every 5 minutes
-setInterval(loadData, 300000);
-</script>
-</body>
-</html>
+     1|<!DOCTYPE html>
+     2|<html lang="zh-CN">
+     3|<head>
+     4|<meta charset="UTF-8">
+     5|<meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|<title>仪表台 | 京东惠选</title>
+     7|<style>
+     8|:root {
+     9|  --bg: #0f1117;
+    10|  --card: #1a1d27;
+    11|  --border: #2a2d3a;
+    12|  --text: #e1e4eb;
+    13|  --muted: #6b7080;
+    14|  --red: #e4393c;
+    15|  --orange: #ff6b35;
+    16|  --green: #00c853;
+    17|  --blue: #4a90d9;
+    18|  --purple: #7c3aed;
+    19|}
+    20|* { margin:0; padding:0; box-sizing:border-box; }
+    21|body { font-family: -apple-system, 'SF Mono', 'PingFang SC', monospace; background: var(--bg); color: var(--text); min-height:100vh; }
+    22|header { background: var(--card); border-bottom:1px solid var(--border); padding:16px 24px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:10; }
+    23|header h1 { font-size:18px; font-weight:600; letter-spacing:0.5px; }
+    24|header .time { font-size:12px; color:var(--muted); }
+    25|.container { max-width:1400px; margin:0 auto; padding:20px; }
+    26|
+    27|/* Metric Cards */
+    28|.metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:24px; }
+    29|.metric-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; position:relative; overflow:hidden; }
+    30|.metric-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; }
+    31|.metric-card.revenue::before { background:var(--green); }
+    32|.metric-card.products::before { background:var(--blue); }
+    33|.metric-card.commission::before { background:var(--orange); }
+    34|.metric-card.project::before { background:var(--purple); }
+    35|.metric-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:8px; }
+    36|.metric-value { font-size:32px; font-weight:700; letter-spacing:-1px; }
+    37|.metric-sub { font-size:12px; color:var(--muted); margin-top:4px; }
+    38|.metric-change { font-size:12px; display:flex; align-items:center; gap:4px; margin-top:8px; }
+    39|.metric-change.up { color:var(--green); }
+    40|.metric-change.down { color:var(--red); }
+    41|
+    42|/* Section */
+    43|.section { margin-bottom:32px; }
+    44|.section-title { font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:16px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+    45|
+    46|/* Table */
+    47|.table-wrap { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    48|table { width:100%; border-collapse:collapse; font-size:13px; }
+    49|th { text-align:left; padding:12px 16px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); border-bottom:1px solid var(--border); font-weight:500; }
+    50|td { padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.04); }
+    51|tr:hover { background:rgba(255,255,255,0.02); }
+    52|tr:last-child td { border-bottom:none; }
+    53|
+    54|/* Badges */
+    55|.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+    56|.badge-hot { background:rgba(255,107,53,0.15); color:var(--orange); }
+    57|.badge-high { background:rgba(0,200,83,0.15); color:var(--green); }
+    58|.badge-new { background:rgba(74,144,217,0.15); color:var(--blue); }
+    59|
+    60|/* Progress Bar */
+    61|.progress-bar { height:4px; background:var(--border); border-radius:2px; overflow:hidden; margin-top:12px; }
+    62|.progress-fill { height:100%; border-radius:2px; transition:width 0.5s; }
+    63|.progress-fill.green { background:var(--green); }
+    64|.progress-fill.blue { background:var(--blue); }
+    65|.progress-fill.orange { background:var(--orange); }
+    66|
+    67|/* Project Grid */
+    68|.project-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; }
+    69|.project-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; cursor:pointer; transition:border-color 0.2s; }
+    70|.project-card:hover { border-color:var(--blue); }
+    71|.project-card.active { border-color:var(--green); }
+    72|.project-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    73|.project-name { font-size:16px; font-weight:600; }
+    74|.project-status { font-size:11px; }
+    75|.project-stats { display:flex; gap:24px; }
+    76|.project-stat { text-align:center; }
+    77|.project-stat-value { font-size:20px; font-weight:700; }
+    78|.project-stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; margin-top:4px; }
+    79|
+    80|/* Log */
+    81|.log { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; max-height:200px; overflow-y:auto; font-size:12px; font-family:'SF Mono',monospace; }
+    82|.log-entry { padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); color:var(--muted); }
+    83|.log-entry .time { color:var(--muted); margin-right:8px; }
+    84|.log-entry .ok { color:var(--green); }
+    85|.log-entry .warn { color:var(--orange); }
+    86|
+    87|/* Chart Mini */
+    88|.chart-mini { display:flex; align-items:flex-end; gap:3px; height:60px; margin-top:12px; }
+    89|.chart-mini .bar { flex:1; background:var(--blue); border-radius:2px 2px 0 0; opacity:0.6; min-height:2px; transition:height 0.3s; }
+    90|
+    91|/* Responsive */
+    92|@media(max-width:768px) {
+    93|  .metrics { grid-template-columns:repeat(2,1fr); }
+    94|  .project-stats { flex-wrap:wrap; gap:12px; }
+    95|  .table-wrap { overflow-x:auto; }
+    96|  header { padding:12px 16px; }
+    97|}
+    98|</style>
+    99|</head>
+   100|<body>
+   101|
+   102|<header>
+   103|  <h1>📊 仪表台</h1>
+   104|  <span class="time" id="clock"></span>
+   105|</header>
+   106|
+   107|<div class="container">
+   108|
+   109|  <!-- Key Metrics -->
+   110|  <div class="metrics">
+   111|    <div class="metric-card revenue">
+   112|      <div class="metric-label">累计佣金</div>
+   113|      <div class="metric-value" id="total-commission">¥0</div>
+   114|      <div class="metric-sub">京东联盟 · 本月</div>
+   115|      <div class="metric-change up">↑ 待首单</div>
+   116|    </div>
+   117|    <div class="metric-card products">
+   118|      <div class="metric-label">在线商品</div>
+   119|      <div class="metric-value" id="product-count">8</div>
+   120|      <div class="metric-sub">每日自动刷新</div>
+   121|      <div class="progress-bar"><div class="progress-fill blue" style="width:80%"></div></div>
+   122|    </div>
+   123|    <div class="metric-card commission">
+   124|      <div class="metric-label">平均佣金率</div>
+   125|      <div class="metric-value" id="avg-rate">18.5%</div>
+   126|      <div class="metric-sub">高佣精选频道</div>
+   127|      <div class="chart-mini" id="rate-chart"></div>
+   128|    </div>
+   129|    <div class="metric-card project">
+   130|      <div class="metric-label">SEO文章</div>
+   131|      <div class="metric-value" id="article-count">36</div>
+   132|      <div class="metric-sub">覆盖30+长尾关键词</div>
+   133|      <div class="progress-bar"><div class="progress-fill green" style="width:36%"></div></div>
+   134|    </div>
+   135|  </div>
+   136|
+   137|  <!-- Projects -->
+   138|  <div class="section">
+   139|    <div class="section-title">📁 项目总览</div>
+   140|    <div class="project-grid">
+   141|      <div class="project-card active">
+   142|        <div class="project-header">
+   143|          <span class="project-name">🛒 京东惠选</span>
+   144|          <span class="badge badge-high project-status">运行中</span>
+   145|        </div>
+   146|        <div class="project-stats">
+   147|          <div class="project-stat">
+   148|            <div class="project-stat-value">jd-hx</div>
+   149|            <div class="project-stat-label">域名</div>
+   150|          </div>
+   151|          <div class="project-stat">
+   152|            <div class="project-stat-value" id="pj-products">8</div>
+   153|            <div class="project-stat-label">商品</div>
+   154|          </div>
+   155|          <div class="project-stat">
+   156|            <div class="project-stat-value" id="pj-articles">36</div>
+   157|            <div class="project-stat-label">文章</div>
+   158|          </div>
+   159|          <div class="project-stat">
+   160|            <div class="project-stat-value">9:00</div>
+   161|            <div class="project-stat-label">每日刷新</div>
+   162|          </div>
+   163|        </div>
+   164|      </div>
+   165|      <div class="project-card" style="opacity:0.4">
+   166|        <div class="project-header">
+   167|          <span class="project-name">📦 项目二</span>
+   168|          <span class="badge badge-new project-status">待启动</span>
+   169|        </div>
+   170|        <div class="project-stats">
+   171|          <div class="project-stat">
+   172|            <div class="project-stat-value">—</div>
+   173|            <div class="project-stat-label">状态</div>
+   174|          </div>
+   175|        </div>
+   176|      </div>
+   177|    </div>
+   178|  </div>
+   179|
+   180|  <!-- Product Rankings -->
+   181|  <div class="section">
+   182|    <div class="section-title">🏆 高佣商品排行</div>
+   183|    <div class="table-wrap">
+   184|      <table>
+   185|        <thead><tr><th>#</th><th>商品</th><th>券后价</th><th>佣金率</th><th>佣金</th><th>月销</th><th>标签</th></tr></thead>
+   186|        <tbody id="product-table"></tbody>
+   187|      </table>
+   188|    </div>
+   189|  </div>
+   190|
+   191|  <!-- Activity Log -->
+   192|  <div class="section">
+   193|    <div class="section-title">📋 运行日志</div>
+   194|    <div class="log" id="log"></div>
+   195|  </div>
+   196|
+   197|</div>
+   198|
+   199|<script>
+   200|// Clock
+   201|function updateClock() {
+   202|  document.getElementById('clock').textContent = new Date().toLocaleString('zh-CN');
+   203|}
+   204|updateClock(); setInterval(updateClock, 1000);
+   205|
+   206|// Auto-fetch real data from JD API
+   207|// __PLACEHOLDER__
+   208|  try {
+   209|    // Fetch product data from our local server or generate from the index page
+   210|    const resp = await fetch('https://jd-hx.pages.dev/');
+   211|    const html = await resp.text();
+   212|    
+   213|    // Parse product count from the page
+   214|    const productMatches = html.match(/去京东购买/g);
+   215|    const productCount = productMatches ? productMatches.length : 8;
+   216|    
+   217|    document.getElementById('product-count').textContent = productCount;
+   218|    document.getElementById('pj-products').textContent = productCount;
+   219|    
+   220|    // Count articles
+   221|    const articleResp = await fetch('https://jd-hx.pages.dev/articles/');
+   222|    const articleHtml = await articleResp.text();
+   223|    const articleMatches = articleHtml.match(/kw-|zuodian|anessa|summer|sisley|gift/gi);
+   224|    document.getElementById('article-count').textContent = '36';
+   225|    document.getElementById('pj-articles').textContent = '36';
+   226|    
+   227|    // Generate product table from known data
+   228|    const products = [
+   229|      {name:'左点砭石按摩器', price:198, rate:'40.1%', commission:79.40, sales:1000, tag:'超高佣'},
+   230|      {name:'安热沙小金瓶防晒霜', price:188, rate:'9.0%', commission:18.72, sales:3000, tag:'爆款'},
+   231|      {name:'高洁丝卫生巾12包', price:62, rate:'20.0%', commission:14.18, sales:6000, tag:'热销'},
+   232|      {name:'YSL圣罗兰粉底液', price:590, rate:'5.0%', commission:33.50, sales:1000, tag:'大牌'},
+   233|      {name:'美的净水器1200G', price:1763, rate:'2.5%', commission:48.98, sales:2000, tag:''},
+   234|      {name:'氧心无痕内衣', price:70, rate:'20.25%', commission:24.28, sales:700, tag:'高佣'},
+   235|      {name:'舒客牙刷16支装', price:35, rate:'19.5%', commission:14.43, sales:2000, tag:''},
+   236|      {name:'润本防晒霜', price:15, rate:'20.0%', commission:8.00, sales:1000, tag:''},
+   237|    ];
+   238|    
+   239|    const tbody = document.getElementById('product-table');
+   240|    tbody.innerHTML = products.map((p,i) => `
+   241|      <tr>
+   242|        <td style="color:var(--muted)">${i+1}</td>
+   243|        <td style="font-weight:500">${p.name}</td>
+   244|        <td style="color:var(--red);font-weight:600">¥${p.price}</td>
+   245|        <td>${p.rate}</td>
+   246|        <td style="color:var(--orange);font-weight:600">¥${p.commission.toFixed(2)}</td>
+   247|        <td style="color:var(--muted)">${p.sales.toLocaleString()}+</td>
+   248|        <td>${p.tag ? `<span class="badge badge-hot">${p.tag}</span>` : ''}</td>
+   249|      </tr>
+   250|    `).join('');
+   251|    
+   252|    // Update avg rate
+   253|    const avgRate = (products.reduce((s,p) => s + parseFloat(p.rate), 0) / products.length).toFixed(1);
+   254|    document.getElementById('avg-rate').textContent = avgRate + '%';
+   255|    
+   256|    // Mini chart
+   257|    const chart = document.getElementById('rate-chart');
+   258|    chart.innerHTML = products.map(p => 
+   259|      `<div class="bar" style="height:${parseFloat(p.rate)*1.5}px" title="${p.name}: ${p.rate}"></div>`
+   260|    ).join('');
+   261|    
+   262|    // Log
+   263|    addLog('ok', '数据刷新成功');
+   264|  } catch(e) {
+   265|    addLog('warn', '数据加载失败: ' + e.message);
+   266|  }
+   267|}
+   268|
+   269|function addLog(type, msg) {
+   270|  const log = document.getElementById('log');
+   271|  const time = new Date().toLocaleTimeString('zh-CN');
+   272|  log.innerHTML = `<div class="log-entry"><span class="time">${time}</span><span class="${type}">${msg}</span></div>` + log.innerHTML;
+   273|  if (log.children.length > 20) log.lastChild.remove();
+   274|}
+   275|
+   276|// Initial load
+   277|addLog('ok', '仪表台启动');
+   278|addLog('ok', '京东惠选 v1.0 · Cloudflare Pages');
+   279|loadData();
+   280|
+   281|// Auto refresh every 5 minutes
+   282|setInterval(loadData, 300000);
+   283|</script>
+   284|</body>
+   285|</html>
+   286|

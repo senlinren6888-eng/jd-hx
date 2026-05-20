@@ -168,6 +168,18 @@ body{{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backg
 with open(os.path.join(PROJECT_DIR, "index.html"), "w", encoding="utf-8") as f:
     f.write(html)
 
+# Also generate data.json for dashboard
+import json as j
+data_json = {
+    "updated": time.strftime("%Y-%m-%d %H:%M:%S"),
+    "product_count": len(products),
+    "total_commission": round(total_commission, 2),
+    "avg_rate": round(sum(p["rate"] for p in products[:8]) / min(len(products), 8), 1),
+    "top5": [{"name": p["name"][:30], "price": int(p["price"]), "commission": round(p["commission"], 2), "rate": p["rate"]} for p in products[:5]]
+}
+with open(os.path.join(PROJECT_DIR, "data.json"), "w") as f:
+    j.dump(data_json, f, ensure_ascii=False)
+
 print(f"\n🎉 京东惠选已刷新: index.html ({len(html):,} 字符)", flush=True)
 print(f"📊 商品数: {len(products)} | 佣金总额: ¥{total_commission:.2f}", flush=True)
-print(f"🌐 https://senlinren6888-eng.github.io/jd-hx/", flush=True)
+print(f"🌐 https://jd-hx.pages.dev/", flush=True)
