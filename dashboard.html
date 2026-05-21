@@ -3,176 +3,241 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>仪表台 | 京东惠选</title>
+<title>京东惠选 · 仪表台</title>
 <style>
-:root{--bg:#0f1117;--card:#1a1d27;--border:#2a2d3a;--text:#e1e4eb;--muted:#6b7080;--red:#e4393c;--orange:#ff6b35;--green:#00c853;--blue:#4a90d9;--purple:#7c3aed}
+:root {
+  --bg:#080b12; --card:#111622; --border:#1e2433; --text:#e8ecf1;
+  --muted:#5a6072; --red:#f0434b; --orange:#f07b3f; --green:#2dd4a8;
+  --blue:#5b9cf5; --gold:#f5a623;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,'SF Mono','PingFang SC',monospace;background:var(--bg);color:var(--text);min-height:100vh}
-header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-header h1{font-size:18px;font-weight:600}
-header .time{font-size:12px;color:var(--muted)}
-.container{max-width:1400px;margin:0 auto;padding:20px}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
-.metric-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
-.metric-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
-.metric-card.revenue::before{background:var(--green)}
-.metric-card.products::before{background:var(--blue)}
-.metric-card.commission::before{background:var(--orange)}
-.metric-card.project::before{background:var(--purple)}
-.metric-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
-.metric-value{font-size:32px;font-weight:700;letter-spacing:-1px}
-.metric-sub{font-size:12px;color:var(--muted);margin-top:4px}
-.metric-change{font-size:12px;display:flex;align-items:center;gap:4px;margin-top:8px;color:var(--green)}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+::selection{background:var(--blue);color:#fff}
+
+/* Header */
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{font-size:20px}
+.topbar-title{font-size:16px;font-weight:600;letter-spacing:0.3px}
+.topbar-right{display:flex;align-items:center;gap:16px;font-size:13px;color:var(--muted)}
+.topbar-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.btn-refresh{background:var(--blue);border:none;color:#fff;padding:7px 16px;border-radius:6px;font-size:13px;cursor:pointer;transition:opacity .2s}
+.btn-refresh:hover{opacity:.85}
+.btn-refresh:active{transform:scale(.96)}
+
+/* Layout */
+.main{padding:28px}
+.grid{max-width:1320px;margin:0 auto}
+
+/* KPI Row */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;position:relative;overflow:hidden;transition:border-color .3s}
+.kpi:hover{border-color:var(--blue)}
+.kpi::after{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;border-radius:50%;opacity:.06}
+.kpi.actual::after{background:var(--green)}
+.kpi.estimate::after{background:var(--orange)}
+.kpi.products::after{background:var(--blue)}
+.kpi.rate::after{background:var(--gold)}
+.kpi-icon{font-size:28px;margin-bottom:10px}
+.kpi-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
+.kpi-value{font-size:32px;font-weight:700;letter-spacing:-1px;line-height:1}
+.kpi-value.muted{color:var(--muted)}
+.kpi-sub{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* Section */
 .section{margin-bottom:32px}
-.section-title{font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:12px 16px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500}
-td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04)}
-tr:hover{background:rgba(255,255,255,0.02)}
-tr:last-child td{border-bottom:none}
-.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
-.badge-hot{background:rgba(255,107,53,0.15);color:var(--orange)}
-.badge-high{background:rgba(0,200,83,0.15);color:var(--green)}
-.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:12px}
-.progress-fill{height:100%;border-radius:2px;transition:width 0.5s}
-.progress-fill.green{background:var(--green)}
-.chart-mini{display:flex;align-items:flex-end;gap:3px;height:60px;margin-top:12px}
-.chart-mini .bar{flex:1;background:var(--blue);border-radius:2px 2px 0 0;opacity:0.6;min-height:2px}
-.log{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;max-height:200px;overflow-y:auto;font-size:12px;font-family:'SF Mono',monospace}
-.log-entry{padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--muted)}
-.log-entry .ok{color:var(--green)}
-.log-entry .warn{color:var(--orange)}
-.log-entry .err{color:var(--red)}
-.project-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
-.project-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
-.project-card.active{border-color:var(--green)}
-.project-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.project-name{font-size:16px;font-weight:600}
-.project-status{font-size:11px}
-.project-stats{display:flex;gap:24px}
-.project-stat{text-align:center}
-.project-stat-value{font-size:20px;font-weight:700}
-.project-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:4px}
-.btn-refresh{background:var(--blue);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;margin-left:12px}
-.btn-refresh:hover{opacity:0.8}
-@media(max-width:768px){.metrics{grid-template-columns:repeat(2,1fr)}.project-stats{flex-wrap:wrap;gap:12px}.table-wrap{overflow-x:auto}}
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)}
+
+/* Table */
+.tbl{width:100%;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.tbl table{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:14px 20px;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.015)}
+.tbl td{padding:14px 20px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover{background:rgba(255,255,255,0.02)}
+.tbl .rank{color:var(--muted);font-weight:600;width:40px}
+.tbl .name{font-weight:500;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbl .price{color:var(--red);font-weight:600}
+.tbl .comm{color:var(--orange);font-weight:600}
+.tbl .badge{display:inline-block;padding:3px 10px;border-radius:5px;font-size:11px;font-weight:600;letter-spacing:0.3px}
+.tbl .badge-hot{background:rgba(240,123,63,.15);color:var(--orange)}
+
+/* Progress */
+.progress{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:14px}
+.progress-bar{height:100%;border-radius:3px;transition:width .6s}
+.progress-bar.green{background:var(--green)}
+.progress-bar.blue{background:var(--blue)}
+
+/* Log */
+.log{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 22px;max-height:180px;overflow-y:auto;font-size:12px;font-family:"SF Mono","Menlo",monospace;color:var(--muted);line-height:1.8}
+.log .ok{color:var(--green)}
+.log .warn{color:var(--orange)}
+.log .err{color:var(--red)}
+.log .ts{color:var(--muted);opacity:.5;margin-right:8px}
+
+/* Status row */
+.status-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.project-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px}
+.project-card.active{border-color:rgba(45,212,168,.3)}
+.project-name{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.project-meta{display:flex;gap:28px;font-size:13px}
+.project-meta-item{text-align:center}
+.project-meta-val{font-size:18px;font-weight:700}
+.project-meta-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:3px;letter-spacing:0.5px}
+
+@media(max-width:768px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .status-row{grid-template-columns:1fr}
+  .main{padding:16px}
+}
 </style>
 </head>
 <body>
-<header>
-  <h1>📊 仪表台</h1>
-  <div>
-    <button class="btn-refresh" onclick="loadData()">🔄 刷新</button>
-    <span class="time" id="clock"></span>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">🛒</span>
+    <span class="topbar-title">京东惠选 · 仪表台</span>
   </div>
-</header>
-<div class="container">
-  <div class="metrics">
-    <div class="metric-card revenue">
-      <div class="metric-label">预估佣金总额</div>
-      <div class="metric-value" id="total-commission">加载中...</div>
-      <div class="metric-sub">京粉API · 商品佣金总和</div>
-      <div class="metric-change" id="update-time">⚠️ 非实际收入</div>
+  <div class="topbar-right">
+    <span class="topbar-dot"></span>
+    <span id="clock">--</span>
+    <button class="btn-refresh" onclick="loadAll()">🔄 刷新数据</button>
+  </div>
+</div>
+
+<div class="main"><div class="grid">
+
+  <!-- KPI Cards -->
+  <div class="kpi-row">
+    <div class="kpi actual">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-label">实际收入</div>
+      <div class="kpi-value muted" id="actual-income">¥0.00</div>
+      <div class="kpi-sub">京东联盟真实订单</div>
     </div>
-    <div class="metric-card products">
-      <div class="metric-label">在线商品</div>
-      <div class="metric-value" id="product-count">—</div>
-      <div class="metric-sub">每日自动刷新</div>
-      <div class="progress-bar"><div class="progress-fill green" style="width:80%"></div></div>
+    <div class="kpi estimate">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-label">预估计佣金</div>
+      <div class="kpi-value" id="total-commission">—</div>
+      <div class="kpi-sub">展示商品佣金总和</div>
     </div>
-    <div class="metric-card commission">
-      <div class="metric-label">平均佣金率</div>
-      <div class="metric-value" id="avg-rate">—</div>
-      <div class="metric-sub">高佣精选频道</div>
-      <div class="chart-mini" id="rate-chart"></div>
+    <div class="kpi products">
+      <div class="kpi-icon">📦</div>
+      <div class="kpi-label">在线商品</div>
+      <div class="kpi-value" id="product-count">—</div>
+      <div class="kpi-sub">每日 9:00 自动刷新</div>
+      <div class="progress"><div class="progress-bar blue" style="width:80%"></div></div>
     </div>
-    <div class="metric-card project">
-      <div class="metric-label">实际收入</div>
-      <div class="metric-value" style="color:var(--muted)">¥0.00</div>
-      <div class="metric-sub">京东联盟订单</div>
-      <div class="metric-change" style="color:var(--muted)">待首单</div>
+    <div class="kpi rate">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-label">平均佣金率</div>
+      <div class="kpi-value" id="avg-rate">—</div>
+      <div class="kpi-sub" id="top-product-name">—</div>
     </div>
   </div>
 
+  <!-- Product Ranking -->
   <div class="section">
-    <div class="section-title">🏆 高佣商品排行</div>
-    <div class="table-wrap">
+    <div class="section-hd">
+      <span class="section-title">🏆 高佣商品排行</span>
+      <span style="font-size:12px;color:var(--muted)" id="data-time"></span>
+    </div>
+    <div class="tbl">
       <table>
-        <thead><tr><th>#</th><th>商品</th><th>券后价</th><th>佣金率</th><th>佣金</th><th>标签</th></tr></thead>
-        <tbody id="product-table"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">加载中...</td></tr></tbody>
+        <thead><tr><th>#</th><th>商品名称</th><th>券后价</th><th>佣金率</th><th>预估佣金</th><th></th></tr></thead>
+        <tbody id="product-table">
+          <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)">加载中…</td></tr>
+        </tbody>
       </table>
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-title">📁 项目总览</div>
-    <div class="project-grid">
-      <div class="project-card active">
-        <div class="project-header"><span class="project-name">🛒 京东惠选</span><span class="badge badge-high project-status">运行中</span></div>
-        <div class="project-stats">
-          <div class="project-stat"><div class="project-stat-value">jd-hx</div><div class="project-stat-label">域名</div></div>
-          <div class="project-stat"><div class="project-stat-value" id="pj-products">—</div><div class="project-stat-label">商品</div></div>
-          <div class="project-stat"><div class="project-stat-value">36</div><div class="project-stat-label">文章</div></div>
-          <div class="project-stat"><div class="project-stat-value">9:00</div><div class="project-stat-label">每日刷新</div></div>
-        </div>
+  <!-- Project Status -->
+  <div class="status-row">
+    <div class="project-card active">
+      <div class="project-name">🛒 京东惠选 <span class="badge badge-hot" style="font-size:10px">运行中</span></div>
+      <div class="project-meta">
+        <div class="project-meta-item"><div class="project-meta-val">jd-hx</div><div class="project-meta-lbl">域名</div></div>
+        <div class="project-meta-item"><div class="project-meta-val" id="pj-products">—</div><div class="project-meta-lbl">商品</div></div>
+        <div class="project-meta-item"><div class="project-meta-val">36</div><div class="project-meta-lbl">SEO文章</div></div>
+        <div class="project-meta-item"><div class="project-meta-val">9:00</div><div class="project-meta-lbl">刷新</div></div>
       </div>
-      <div class="project-card" style="opacity:0.4">
-        <div class="project-header"><span class="project-name">📦 项目二</span><span class="badge badge-high project-status">待启动</span></div>
-        <div class="project-stats"><div class="project-stat"><div class="project-stat-value">—</div><div class="project-stat-label">状态</div></div></div>
-      </div>
+    </div>
+    <div class="project-card" style="opacity:.35">
+      <div class="project-name">📦 待启动项目</div>
+      <div class="project-meta"><div class="project-meta-item"><div class="project-meta-val">—</div><div class="project-meta-lbl">状态</div></div></div>
     </div>
   </div>
 
+  <!-- Log -->
   <div class="section">
-    <div class="section-title">📋 运行日志</div>
+    <div class="section-hd"><span class="section-title">📋 运行日志</span></div>
     <div class="log" id="log"></div>
   </div>
-</div>
+
+</div></div>
 
 <script>
-function updateClock(){document.getElementById('clock').textContent=new Date().toLocaleString('zh-CN')}
-updateClock();setInterval(updateClock,1000)
+function T(){return new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+setInterval(function(){document.getElementById('clock').textContent=T()},1000)
+document.getElementById('clock').textContent=T()
 
-function addLog(type,msg){
-  var log=document.getElementById('log')
-  var time=new Date().toLocaleTimeString('zh-CN')
-  log.innerHTML='<div class="log-entry"><span class="'+type+'">'+time+' '+msg+'</span></div>'+log.innerHTML
-}
+function L(t,m){var l=document.getElementById('log');l.innerHTML='<div><span class="ts">'+T()+'</span><span class="'+t+'">'+m+'</span></div>'+l.innerHTML}
 
-async function loadData(){
-  addLog('ok','🔄 拉取京东联盟数据...')
+async function loadAll(){
+  L('ok','🔄 正在拉取京东联盟实时数据…')
   try{
-    var resp=await fetch('data.json?t='+Date.now())
-    var d=await resp.json()
+    var r=await fetch('data.json?t='+Date.now())
+    var d=await r.json()
+    
+    // KPIs
     document.getElementById('total-commission').textContent='¥'+d.total_commission.toLocaleString()
     document.getElementById('product-count').textContent=d.product_count
     document.getElementById('avg-rate').textContent=d.avg_rate+'%'
     document.getElementById('pj-products').textContent=d.product_count
-    document.getElementById('update-time').textContent='🟢 实时 · '+d.updated.split(' ')[1]
+    document.getElementById('data-time').textContent='更新于 '+d.updated
     
-    var tags=['超高佣','爆款','热门','高佣','推荐']
-    var tbody=document.getElementById('product-table')
-    tbody.innerHTML=d.top5.map(function(p,i){
-      var badge=''
-      if(p.rate>=30)badge='<span class="badge badge-hot">超高佣</span>'
-      else if(p.rate>=15)badge='<span class="badge badge-high">高佣</span>'
-      return'<tr><td style="color:var(--muted)">'+(i+1)+'</td><td style="font-weight:500">'+p.name+'</td><td style="color:var(--red);font-weight:600">¥'+p.price+'</td><td>'+p.rate+'%</td><td style="color:var(--orange);font-weight:600">¥'+p.commission.toFixed(2)+'</td><td>'+badge+'</td></tr>'
+    if(d.top5&&d.top5.length>0){
+      document.getElementById('top-product-name').textContent=d.top5[0].name.substring(0,18)+'…'
+    }
+    
+    // Actual income — kept at ¥0 until real orders come
+    document.getElementById('actual-income').textContent='¥0.00'
+    
+    // Product table
+    var tb=document.getElementById('product-table')
+    tb.innerHTML=d.top5.map(function(p,i){
+      var b=''
+      if(p.rate>=30)b='<span class="badge badge-hot">超高佣</span>'
+      else if(p.rate>=15)b='<span class="badge badge-hot" style="background:rgba(45,212,168,.15);color:var(--green)">高佣</span>'
+      return'<tr><td class="rank">'+(i+1)+'</td><td class="name" title="'+p.name+'">'+p.name+'</td><td class="price">¥'+p.price.toLocaleString()+'</td><td>'+p.rate+'%</td><td class="comm">¥'+p.commission.toFixed(2)+'</td><td>'+b+'</td></tr>'
     }).join('')
     
-    var chart=document.getElementById('rate-chart')
-    chart.innerHTML=d.top5.map(function(p){return'<div class="bar" style="height:'+Math.max(p.rate*1.2,4)+'px" title="'+p.name+':'+p.rate+'%"></div>'}).join('')
+    // Check real orders (only if VPN/network available)
+    try{
+      var or=await fetch('orders.json?t='+Date.now())
+      if(or.ok){
+        var od=await or.json()
+        if(od.total>0){
+          document.getElementById('actual-income').textContent='¥'+od.commission.toFixed(2)
+          document.getElementById('actual-income').classList.remove('muted')
+          L('ok','💰 真实订单: '+od.total+'单 · ¥'+od.commission.toFixed(2))
+        }
+      }
+    }catch(e){}
     
-    addLog('ok','✅ 刷新成功 · 佣金总额 ¥'+d.total_commission)
+    L('ok','✅ 数据刷新完成 · 商品 '+d.product_count+' 件')
   }catch(e){
-    addLog('err','❌ 加载失败: '+e.message)
+    L('err','❌ 加载失败: '+e.message)
   }
 }
 
-addLog('ok','仪表台启动')
-addLog('ok','京东惠选 v1.0')
-loadData()
-setInterval(loadData,300000)
+L('ok','仪表台启动')
+loadAll()
+setInterval(loadAll,300000)
 </script>
 </body>
 </html>
